@@ -1,1 +1,10 @@
+# LLM APIs
+openai
+anthropic
 
+# Environment Management
+python-dotenv
+
+# Text Processing & Utilities
+rich
+typing-extensions
