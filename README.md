@@ -8,7 +8,7 @@
 ---
 
 ## 🛠️ Tech Stack (הטכנולוגיה)
-* **Brain:** Claude 3.5 Sonnet (Logic & Reasoning)
+* **Brain:** Claude 4.5 Sonnet (Logic & Reasoning)
 * **Orchestration:** LangGraph (State Management)
 * **Memory:** Vector Store (Pinecone/Chroma) + `client_dna.md`
 * **UI:** Streamlit (For Pilot/Engineering View)
