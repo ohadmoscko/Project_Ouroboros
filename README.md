@@ -25,8 +25,8 @@
 - [x] **Data Collection:** איסוף 20 פוסטים "פוסטים מוזהבים" של הלקוח.
 - [x] **DNA Extraction:** הרצת אנליזה על הפוסטים ויצירת קובץ `client_dna.md`.
 - [ ] **The Prime Prompt:** יצירת `master_sop.md` (הוראות מערכת) המשלב את ה-DNA.
-- [ ] **Manual Simulation:** הרצה ידנית (בצ'אט) של הפרומפט כדי לוודא שהתוצאה נשמעת כמו הלקוח.
-- [ ] **GATE 1 APPROVAL:** הלקוח מאשר שהטקסט נשמע כמוהו (Vibe Check).
+- [x] **Manual Simulation:** הרצה ידנית (בצ'אט) של הפרומפט.
+- [⏳] **GATE 1 APPROVAL:** ממתין למשוב לקוח על 3 טיוטות (נשלח ב-11.01.26).
 
 ### 🌒 Phase 1: The Engine (המנוע הבסיסי)
 *המטרה: סקריפט פייתון אחד שרץ מקצה לקצה ומייצר טיוטה.*
