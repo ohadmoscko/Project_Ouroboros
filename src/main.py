@@ -1,79 +1,78 @@
 import os
 import sys
-from dotenv import load_dotenv
-from anthropic import Anthropic
-from rich.console import Console
-from rich.panel import Panel
+try:
+    from dotenv import load_dotenv
+    from anthropic import Anthropic
+    from rich.console import Console
+    from rich.panel import Panel
+except ImportError:
+    print("Error: Libraries not installed. Run: pip install -r requirements.txt")
+    sys.exit(1)
 
-# אתחול הדפסה יפה לטרמינל
 console = Console()
 
-def load_environment():
-    """טעינת משתני סביבה וביצוע בדיקות תקינות"""
+def main():
+    console.print("[bold blue]Project Ouroboros - SYSTEM CHECK[/bold blue]")
+    
+    # 1. בדיקת מפתח
     load_dotenv()
     api_key = os.getenv("ANTHROPIC_API_KEY")
     
     if not api_key:
-        console.print("[bold red]ERROR:[/bold red] Missing ANTHROPIC_API_KEY in .env file")
-        return None
-    
-    return api_key
+        console.print("[bold red]ERROR: Missing API Key in .env file![/bold red]")
+        console.print("[yellow]Tip: copy `.env.sample` to `.env` and set `ANTHROPIC_API_KEY`.[/yellow]")
+        sys.exit(1)
 
-def read_file_content(filepath):
-    """קריאת תוכן קובץ טקסט/מרקדאון"""
-    try:
-        with open(filepath, 'r', encoding='utf-8') as f:
-            return f.read()
-    except FileNotFoundError:
-        console.print(f"[bold red]ERROR:[/bold red] File not found: {filepath}")
-        return None
+    # 2. בדיקת קובץ DNA
+    if os.path.exists("00_knowledge_base/client_dna.md"):
+        console.print("[green]V[/green] DNA File found.")
+    else:
+        console.print("[red]X[/red] DNA File missing.")
 
-def test_connection(client):
-    """בדיקת תקשורת בסיסית מול קלוד"""
-    console.print("[yellow]Testing connection to Claude...[/yellow]")
-    
-    try:
-        message = client.messages.create(
-            model="claude-3-5-sonnet-latest", 
-            max_tokens=100,
-            temperature=0.7,
-            messages=[
-                {"role": "user", "content": "Say 'System Online' and give me a random quote about creativity."}
-            ]
-        )
-        response_text = message.content[0].text
-        console.print(Panel(response_text, title="Claude Response", border_style="green"))
-        return True
-    except Exception as e:
-        console.print(f"[bold red]Connection Failed:[/bold red] {e}")
-        return False
-
-def main():
-    console.print("[bold blue]Project Ouroboros - Initialization[/bold blue]")
-    
-    # 1. Setup
-    api_key = load_environment()
-    if not api_key:
-        return
-
+    # 3. בדיקת קלוד
+    console.print("[yellow]Calling Claude...[/yellow]")
+    model_env = os.getenv("ANTHROPIC_MODEL")
+    if not model_env:
+        console.print("[yellow]Warning: `ANTHROPIC_MODEL` not set. Trying default 'claude-2'. To avoid surprises, set `ANTHROPIC_MODEL` in your .env (see `.env.sample`).[/yellow]")
+    model = model_env or "claude-2"
     try:
         client = Anthropic(api_key=api_key)
+        message = client.messages.create(
+            model=model,
+            max_tokens=50,
+            messages=[{"role": "user", "content": "Just say: 'System is ready' in Hebrew"}]
+        )
+        console.print(Panel(message.content[0].text, title=f"Claude ({model})", border_style="green"))
     except Exception as e:
-        console.print(f"[red]Error initializing Anthropic client: {e}[/red]")
-        return
-    
-    # 2. Load Knowledge Base (Test)
-    dna_path = "00_knowledge_base/client_dna.md"
-    console.print(f"Loading DNA from: [underline]{dna_path}[/underline]...")
-    dna_content = read_file_content(dna_path)
-    
-    if dna_content:
-        console.print(f"[green]SUCCESS:[/green] DNA Loaded ({len(dna_content)} chars)")
-    else:
-        console.print("[red]WARNING:[/red] DNA file could not be loaded.")
-
-    # 3. API Test
-    test_connection(client)
+        msg = str(e).lower()
+        if "not_found" in msg or ("model" in msg and "not found" in msg) or ("model" in msg and "not_found" in msg):
+            console.print(f"[yellow]Model '{model}' not found. Attempting common fallbacks: claude-2, claude-3, claude-4...[/yellow]")
+            fallbacks = ["claude-2", "claude-3", "claude-4"]
+            tried = []
+            for fm in fallbacks:
+                if fm == model:
+                    continue
+                tried.append(fm)
+                try:
+                    message = client.messages.create(
+                        model=fm,
+                        max_tokens=50,
+                        messages=[{"role": "user", "content": "Just say: 'System is ready' in Hebrew"}]
+                    )
+                    console.print(Panel(message.content[0].text, title=f"Claude ({fm})", border_style="green"))
+                    console.print(f"[green]Switched to model '{fm}'[/green]")
+                    break
+                except Exception:
+                    continue
+            else:
+                console.print(f"[bold red]Connection Error:[/bold red] Model '{model}' not found. Tried fallbacks: {', '.join(tried)}. Set `ANTHROPIC_MODEL` in your .env to a valid model name or check your Anthropic account.")
+                sys.exit(1)
+        elif "unauthorized" in msg or "401" in msg or "invalid api key" in msg:
+            console.print("[bold red]Connection Error:[/bold red] API key invalid or unauthorized. Check `ANTHROPIC_API_KEY` in your .env and your Anthropic account.")
+            sys.exit(1)
+        else:
+            console.print(f"[bold red]Connection Error:[/bold red] {e}")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

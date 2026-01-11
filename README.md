@@ -31,7 +31,7 @@
 ### 🌒 Phase 1: The Engine (המנוע הבסיסי)
 *המטרה: סקריפט פייתון אחד שרץ מקצה לקצה ומייצר טיוטה.*
 
-- [ ] **Environment Setup:** התקנת `poetry`/`venv` וספריות (`anthropic`, `python-dotenv`).
+- [ ] **Environment Setup:** התקנת `poetry`/`venv` וספריות (`anthropic`, `python-dotenv`). Copy `.env.sample` to `.env` and set `ANTHROPIC_API_KEY`.
 - [ ] **API Connection:** חיבור ראשוני ל-Claude API (בדיקת Hello World).
 - [ ] **Knowledge Loader:** סקריפט שטוען את `client_dna.md` לתוך הזיכרון.
 - [ ] **Linear Script:** בניית שרשרת פשוטה: `Input` -> `Prompt` -> `Output`.
