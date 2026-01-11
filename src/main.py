@@ -15,7 +15,7 @@ def load_environment():
     
     if not api_key:
         console.print("[bold red]ERROR:[/bold red] Missing ANTHROPIC_API_KEY in .env file")
-        sys.exit(1)
+        return None
     
     return api_key
 
@@ -34,7 +34,7 @@ def test_connection(client):
     
     try:
         message = client.messages.create(
-            model="claude-3-5-sonnet-latest",  # או claude-3-5-sonnet-20241022 או הגרסה העדכנית ב-2026
+            model="claude-3-5-sonnet-latest", 
             max_tokens=100,
             temperature=0.7,
             messages=[
@@ -53,7 +53,14 @@ def main():
     
     # 1. Setup
     api_key = load_environment()
-    client = Anthropic(api_key=api_key)
+    if not api_key:
+        return
+
+    try:
+        client = Anthropic(api_key=api_key)
+    except Exception as e:
+        console.print(f"[red]Error initializing Anthropic client: {e}[/red]")
+        return
     
     # 2. Load Knowledge Base (Test)
     dna_path = "00_knowledge_base/client_dna.md"
